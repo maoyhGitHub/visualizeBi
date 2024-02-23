@@ -1,0 +1,206 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="io.dataease.ext.PanelIndicatorsMapper">
+
+    <resultMap id="PanelIndicatorsMap" type="io.dataease.dto.panel.PanelIndicatorsDTO">
+        <result column="id" property="id"/>
+        <result column="name" property="name"/>
+        <result column="pid" property="pid"/>
+        <result column="level" property="level"/>
+        <result column="node_type" property="nodeType"/>
+        <result column="dataset_table_id" property="datasetTableId"/>
+        <result column="sort" property="sort"/>
+        <result column="indicators_no" property="indicatorsNo"/>
+        <result column="indicators_explain" property="indicatorsExplain"/>
+        <result column="label" property="label"/>
+        <result column="create_time" property="createTime"/>
+    </resultMap>
+    <!--查询节点类型为业务域lob 和节点类型为指标分类indicatorsType 的数据-->
+    <select id="findIndicatorsList" resultType="io.dataease.dto.panel.PanelIndicatorsDTO">
+        select *,name as label from panel_indicators  where node_type = 'lob' or  node_type = 'indicatorsType'
+        ORDER BY sort
+    </select>
+    <!--插入-->
+    <insert id="insertIndicators" parameterType="io.dataease.dto.panel.PanelIndicatorsDTO">
+        insert into panel_indicators
+        <trim prefix="(" suffix=")" suffixOverrides=",">
+            <if test="id != null">
+                id,
+            </if>
+            <if test="name != null">
+                `name`,
+            </if>
+            <if test="pid != null">
+                `pid`,
+            </if>
+            <if test="level != null">
+                `level`,
+            </if>
+            <if test="nodeType != null">
+                `node_type`,
+            </if>
+            <if test="datasetTableId != null">
+                `dataset_table_id`,
+            </if>
+            <if test="sort != null">
+                `sort`,
+            </if>
+            <if test="indicatorsNo != null">
+                `indicators_no`,
+            </if>
+            <if test="indicatorsExplain != null">
+                `indicators_explain`,
+            </if>
+            <if test="createTime != null">
+                `create_time`,
+            </if>
+        </trim>
+        <trim prefix="values (" suffix=")" suffixOverrides=",">
+            <if test="id != null">
+                #{id,jdbcType=VARCHAR},
+            </if>
+            <if test="name != null">
+                #{name,jdbcType=VARCHAR},
+            </if>
+            <if test="pid != null">
+                #{pid,jdbcType=VARCHAR},
+            </if>
+            <if test="level != null">
+                #{level,jdbcType=INTEGER},
+            </if>
+            <if test="nodeType != null">
+                #{nodeType,jdbcType=VARCHAR},
+            </if>
+            <if test="datasetTableId != null">
+                #{datasetTableId,jdbcType=VARCHAR},
+            </if>
+            <if test="sort != null">
+                #{sort,jdbcType=INTEGER},
+            </if>
+            <if test="indicatorsNo != null">
+                #{indicatorsNo,jdbcType=VARCHAR},
+            </if>
+            <if test="indicatorsExplain != null">
+                #{indicatorsExplain,jdbcType=VARCHAR},
+            </if>
+            <if test="createTime != null">
+                #{createTime,jdbcType=BIGINT},
+            </if>
+        </trim>
+    </insert>
+    <!-- 更新对象 panel_indicators -->
+    <update id="updateIndicators" parameterType="io.dataease.dto.panel.PanelIndicatorsDTO">
+        update panel_indicators
+        <set>
+            <if test="id != null and id != ''">
+               id = #{id,jdbcType=VARCHAR},
+            </if>
+            <if test="name != null and name != ''">
+              name =  #{name,jdbcType=VARCHAR},
+            </if>
+            <if test="pid != null and pid != ''">
+               pid =  #{pid,jdbcType=VARCHAR},
+            </if>
+            <if test="level != null and level != ''">
+                level = #{level,jdbcType=INTEGER},
+            </if>
+            <if test="nodeType != null and nodeType != ''">
+                node_type = #{nodeType,jdbcType=VARCHAR},
+            </if>
+            <if test="datasetTableId != null and datasetTableId != ''">
+                dataset_table_id =  #{datasetTableId,jdbcType=VARCHAR},
+            </if>
+            <if test="sort != null and sort != ''">
+                sort =   #{sort,jdbcType=INTEGER},
+            </if>
+            <if test="indicatorsNo != null and indicatorsNo != ''">
+                indicators_no =  #{indicatorsNo,jdbcType=VARCHAR},
+            </if>
+            <if test="indicatorsExplain != null and indicatorsExplain != ''">
+                indicators_explain =   #{indicatorsExplain,jdbcType=VARCHAR}
+            </if>
+        </set>
+        where id = #{id}
+    </update>
+    <!--根据数据集id修改-->
+    <update id="updateIndicatorsByDatasetId" parameterType="io.dataease.dto.panel.PanelIndicatorsDTO">
+        update panel_indicators
+        <set>
+            <if test="id != null and id != ''">
+                id = #{id,jdbcType=VARCHAR},
+            </if>
+            <if test="name != null and name != ''">
+                name =  #{name,jdbcType=VARCHAR},
+            </if>
+            <if test="pid != null and pid != ''">
+                pid =  #{pid,jdbcType=VARCHAR},
+            </if>
+            <if test="level != null and level != ''">
+                level = #{level,jdbcType=INTEGER},
+            </if>
+            <if test="nodeType != null and nodeType != ''">
+                node_type = #{nodeType,jdbcType=VARCHAR},
+            </if>
+            <if test="sort != null and sort != ''">
+                sort =   #{sort,jdbcType=INTEGER},
+            </if>
+            <if test="indicatorsNo != null and indicatorsNo != ''">
+                indicators_no =  #{indicatorsNo,jdbcType=VARCHAR},
+            </if>
+            <if test="indicatorsExplain != null and indicatorsExplain != ''">
+                indicators_explain =   #{indicatorsExplain,jdbcType=VARCHAR}
+            </if>
+        </set>
+        where dataset_table_id = #{datasetTableId}
+    </update>
+
+
+    <!--根据分类ID查询对应的指标列表-->
+    <select id="getTableList" resultType="io.dataease.dto.panel.PanelIndicatorsDTO">
+        select * from panel_indicators  where instr(#{pids},pid) > 0 and level = 3
+        <if test="keyWord != null and keyWord != ''">
+            and name like concat(concat('%',#{keyWord}),'%')
+        </if>
+        order by create_time desc
+    </select>
+    
+    <!--根据ID删除数据-->
+    <delete id="deleteById" parameterType="java.lang.String">
+        delete from panel_indicators where id = #{id}
+    </delete>
+    <!--查询已关联数据集数据-->
+    <select id="getIndicatorsList" resultType="io.dataease.dto.authModel.VAuthModelDTO">
+        SELECT tb.* FROM (
+                             SELECT
+                                 t.id  AS `id`,
+                                 t.name  AS `NAME`,
+                                 t.name AS `label`,
+                                 IF(t.pid = '-1','zhibiaoku',t.pid) AS `pid`,
+                                 'spine' AS `node_type`,
+                                 'dataset' AS `model_type`,
+                                 'droup' AS `model_inner_type`,
+                                 'source' AS `auth_type`,
+                                 'admin' AS `create_by`,
+                                 t.level AS `level`,
+                                 0 AS `mode`,
+                                 '0' AS `data_source_id`,
+                                 null AS `privileges`
+                             FROM panel_indicators t
+                             WHERE  t.node_type IN('lob','indicatorsType')
+                             UNION ALL
+                             SELECT 'zhibiaoku','指标库','指标库','0','spine','dataset','indicators','source','admin',0, 0,'0',NULL
+                         ) tb
+        GROUP BY tb.id
+    </select>
+
+    <!--指标名称唯一性校验-->
+    <select id="checkName" resultType="java.lang.Integer">
+        select count(*) from panel_indicators where name = #{name}
+        <if test="id != null and id != ''">
+            and id != #{id}
+        </if>
+        <if test="pid != null and pid != ''">
+            and pid = #{pid}
+        </if>
+    </select>
+</mapper>

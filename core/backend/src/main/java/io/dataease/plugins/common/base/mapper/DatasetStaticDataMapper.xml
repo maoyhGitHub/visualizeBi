@@ -1,0 +1,70 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="io.dataease.plugins.common.base.mapper.DatasetStaticDataMapper">
+
+    <insert id="insert">
+        REPLACE INTO dataset_static_data (
+            table_id,
+            view_id,
+            excel_keys,
+            json_details,
+            status,
+            new_json_details
+        ) VALUES
+        (
+            #{tableId},
+            #{viewId},
+            #{excelKeys},
+            #{jsonDetails},
+            0,
+            #{newJsonDetails}
+        )
+    </insert>
+
+    <select id="selectByTableId" resultType="io.dataease.dto.dataset.DataSetStaticData">
+        SELECT
+            table_id AS tableId,
+            view_id AS viewId,
+            excel_keys AS excelkeys,
+            json_details AS jsonDetails,
+            status AS status,
+            new_json_details AS newJsonDetails,
+            excel_new_data AS excelNewData
+        FROM dataset_static_data
+        WHERE table_id = #{tableId}
+        AND view_id = #{viewId}
+    </select>
+
+    <update id="updateByTableId">
+        UPDATE dataset_static_data
+        <set>
+            <if test="status != null">
+                status = #{status},
+            </if>
+            <if test="newJsonDetails != null and newJsonDetails != ''">
+                new_json_details = #{newJsonDetails},
+            </if>
+            <if test="excelNewData != null and excelNewData != ''">
+                excel_new_data = #{excelNewData},
+            </if>
+            update_time = now()
+        </set>
+        WHERE table_id = #{tableId}
+        AND view_id = #{viewId}
+    </update>
+
+    <select id="staticDataList" resultType="io.dataease.dto.dataset.DataSetStaticData">
+        SELECT b.name as viewName,
+            a.table_id AS tableId,
+            a.view_id AS viewId,
+            DATE_FORMAT(a.update_time,'%Y-%m-%d %H:%i:%s') as updateTime,
+            a.status,
+            a.json_details AS jsonDetails,
+            a.new_json_details as newJsonDetails
+        FROM dataset_static_data a , chart_view b
+        where a.view_id = b.id
+        <if test="status != null">
+            AND a.status = #{status}
+        </if>
+    </select>
+</mapper>

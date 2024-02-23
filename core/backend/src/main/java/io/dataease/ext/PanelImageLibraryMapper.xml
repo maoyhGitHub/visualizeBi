@@ -1,0 +1,92 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="io.dataease.ext.PanelImageLibraryMapper">
+
+    <resultMap id="PanelImageLibraryMap" type="io.dataease.dto.panel.PanelImageLibraryDTO">
+        <result column="id" property="id"/>
+        <result column="file_origin_name" property="fileOriginName"/>
+        <result column="file_name" property="fileName"/>
+        <result column="file_category" property="fileCategory"/>
+        <result column="file_path" property="filePath"/>
+        <result column="node_type" property="nodeType"/>
+    </resultMap>
+
+    <select id="findResourceNameByCondition" resultType="io.dataease.dto.panel.PanelImageLibraryDTO">
+        select file_name , file_origin_name from panel_image_library where node_type = 'image'
+        <if test="categoryId != null and categoryId != ''">
+            and file_category = #{categoryId}
+        </if>
+        <if test="searchName != null and searchName != ''">
+            and file_origin_name like concat(concat('%',#{searchName}),'%')
+        </if>
+        ORDER BY create_time desc
+    </select>
+
+    <insert id="insertPanelImageLibrary" parameterType="io.dataease.dto.panel.PanelImageLibraryDTO">
+        insert into panel_image_library
+        <trim prefix="(" suffix=")" suffixOverrides=",">
+            <if test="id != null">
+                id,
+            </if>
+            <if test="fileOriginName != null">
+                `file_origin_name`,
+            </if>
+            <if test="fileName != null">
+                `file_name`,
+            </if>
+            <if test="fileCategory != null">
+                `file_category`,
+            </if>
+            <if test="filePath != null">
+                `file_path`,
+            </if>
+            <if test="nodeType != null">
+                `node_type`,
+            </if>
+        </trim>
+        <trim prefix="values (" suffix=")" suffixOverrides=",">
+            <if test="id != null">
+                #{id,jdbcType=VARCHAR},
+            </if>
+            <if test="fileOriginName != null">
+                #{fileOriginName,jdbcType=VARCHAR},
+            </if>
+            <if test="fileName != null">
+                #{fileName,jdbcType=VARCHAR},
+            </if>
+            <if test="fileCategory != null">
+                #{fileCategory,jdbcType=VARCHAR},
+            </if>
+            <if test="filePath != null">
+                #{filePath,jdbcType=VARCHAR},
+            </if>
+            <if test="nodeType != null">
+                #{nodeType,jdbcType=VARCHAR},
+            </if>
+        </trim>
+    </insert>
+
+    <update id="updatePanelImageLibrary" parameterType="io.dataease.dto.panel.PanelImageLibraryDTO">
+        update panel_image_library
+        set file_category = #{bean.fileCategory}
+        where id = #{bean.id}
+    </update>
+
+    <select id="getPanelCategoryList" resultType="io.dataease.dto.panel.PanelImageLibraryDTO">
+        select *
+        from panel_image_library t1
+        where t1.node_type = 'folder'
+        ORDER BY t1.create_time
+    </select>
+    <delete id="deleteImgByNames">
+        delete
+        from panel_image_library
+        where file_name = #{imgName}
+    </delete>
+
+    <delete id="deleteIconCategory">
+        delete
+        from panel_image_library
+        where id = #{id}
+    </delete>
+</mapper>
